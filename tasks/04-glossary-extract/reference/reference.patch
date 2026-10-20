@@ -1,0 +1,65 @@
+diff --git a/packages/spec-pipeline/src/glossary/extract-glossary.ts b/packages/spec-pipeline/src/glossary/extract-glossary.ts
+index 80b892b70..1c9a67fa3 100644
+--- a/packages/spec-pipeline/src/glossary/extract-glossary.ts
++++ b/packages/spec-pipeline/src/glossary/extract-glossary.ts
+@@ -174,6 +174,26 @@ export function classifyTermKind(term: string, type: 'abbreviation' | 'definitio
+   return term.trim().split(/\s+/).length > 1 ? 'phrase' : 'concept';
+ }
+ 
++/**
++ * Spojí řádky zalomeného odstavce do jednoho (zalomení → mezera). Tabulátor
++ * uvnitř řádku zůstává — u zkratek odděluje zkratku od rozpisu.
++ */
++export function joinWrappedLines(text: string): string {
++  return text.replace(/[ \t]*\r?\n[ \t]*/g, ' ').trim();
++}
++
++/**
++ * Nadpis kapitoly s definicemi: „Definitions“ (bez „abbreviation“), nebo
++ * „Terms“ / „Terms and definitions“ z novější šablony 3GPP, kde nadřazená
++ * kapitola zní „Definitions of terms, symbols and abbreviations“ — dřív se
++ * tak ztratily všechny definice ~21 % specifikací (TR 22.870 „6G AI Service“).
++ */
++export function isDefinitionsHeading(heading: string): boolean {
++  const t = heading.replace(/\s+/g, ' ').trim().toLowerCase();
++  if (t.includes('definition') && !t.includes('abbreviation')) return true;
++  return /^[\d.]*\s*terms\b/.test(t);
++}
++
+ /**
+  * Je zkratka strukturální šum z tabulek (číslo sekce, PICS podmínka)?
+  *
+@@ -596,11 +616,13 @@ export class GlossaryExtractor {
+   }
+ 
+   private extractDefinitions($: cheerio.CheerioAPI, spec: { specNumber: string; release: string }): void {
+-    // Look for "Definitions" section header
+-    const definitionHeaders = $('h1, h2, h3').filter((_, el) => {
+-      const text = $(el).text().toLowerCase();
+-      return text.includes('definition') && !text.includes('abbreviation');
+-    });
++    // Look for "Definitions" section header — nebo „3.1 Terms“ z novější
++    // šablony 3GPP (nadřazená kapitola „Definitions of terms, symbols and
++    // abbreviations“ obsahuje „abbreviation“ a filtrem neprojde).
++    const definitionHeaders = $('h1, h2, h3').filter((_, el) => isDefinitionsHeading($(el).text()));
++    // Vnořené nadpisy (3 Definitions → 3.1 Terms) by tentýž odstavec
++    // prošly dvakrát a zdvojily occurrenceCount.
++    const seen = new Set<unknown>();
+ 
+     definitionHeaders.each((_, header) => {
+       const $header = $(header);
+@@ -618,8 +640,12 @@ export class GlossaryExtractor {
+         }
+ 
+         // Extract definitions from paragraphs
+-        if (tagName === 'p') {
+-          const text = $current.text().trim();
++        if (tagName === 'p' && !seen.has($current[0])) {
++          seen.add($current[0]);
++          // Pandoc (HTML v R2) zalamuje odstavec do řádků po ~72 znacích;
++          // vzor „Term: definice“ níž je jednořádkový (`.` nebere \n), takže by
++          // každou delší definici tiše zahodil. Viz joinWrappedLines.
++          const text = joinWrappedLines($current.text());
+ 
+           // Pattern 1: <strong>Term:</strong> definition
+           const strongMatch = $current.find('strong').first();

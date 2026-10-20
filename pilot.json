@@ -1,0 +1,41 @@
+{
+  "seed": 20261019,
+  "tasks": [
+    "01-priority-queue"
+  ],
+  "configs": [
+    "baseline",
+    "rtk"
+  ],
+  "reps": 2,
+  "runs": [
+    {
+      "task": "01-priority-queue",
+      "config": "baseline",
+      "repetition": 2,
+      "seed_position": 0,
+      "run_id": "p000-01-baseline-2"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "baseline",
+      "repetition": 1,
+      "seed_position": 1,
+      "run_id": "p001-01-baseline-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "rtk",
+      "repetition": 2,
+      "seed_position": 2,
+      "run_id": "p002-01-rtk-2"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "rtk",
+      "repetition": 1,
+      "seed_position": 3,
+      "run_id": "p003-01-rtk-1"
+    }
+  ]
+}

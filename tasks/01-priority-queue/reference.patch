@@ -1,0 +1,87 @@
+diff --git a/apps/api/src/index.ts b/apps/api/src/index.ts
+index c644f38..7e26c7c 100644
+--- a/apps/api/src/index.ts
++++ b/apps/api/src/index.ts
+@@ -1971,15 +1971,6 @@ app.post('/api/admin/runs', async (c) => {
+       return c.json({ success: true, existing: true, run: normalizeAdminRun(existing as any) })
+     }
+ 
+-    if (priority.value > 0) {
+-      const waiting = await c.env.DB.prepare(
+-        `SELECT COUNT(*) AS n FROM admin_runs WHERE priority > 0 AND status = 'queued'`,
+-      ).first<{ n: number }>()
+-      if (Number(waiting?.n ?? 0) >= MAX_QUEUED_PRIORITY_RUNS) {
+-        return c.json({ error: 'priority_queue_full', limit: MAX_QUEUED_PRIORITY_RUNS }, 429)
+-      }
+-    }
+-
+     // D5 singleton: glossary-pipeline / glossary-rollback sdílí klíč
+     // 'glossary'; parciální unikátní index vynutí max 1 aktivní run.
+     const singletonKey = singletonKeyForRunType(type)
+@@ -1994,7 +1985,10 @@ app.post('/api/admin/runs', async (c) => {
+           idempotency_key, actor_kind, actor_id, parent_run_id, scope_hash,
+           singleton_key, priority,
+           started_at, updated_at
+-        ) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?20, ?19, unixepoch())
++        )
++        SELECT ?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, ?20, ?19, unixepoch()
++        WHERE ?20 = 0
++           OR (SELECT COUNT(*) FROM admin_runs WHERE priority > 0 AND status = 'queued') < ?21
+         RETURNING *
+       `).bind(
+         id,
+@@ -2016,9 +2010,14 @@ app.post('/api/admin/runs', async (c) => {
+         body.scopeHash || null,
+         singletonKey,
+         status === 'running' ? now : null,
+-        priority.value
++        priority.value,
++        MAX_QUEUED_PRIORITY_RUNS
+       ).first<Record<string, unknown>>()
+ 
++      // Cap checked in the INSERT itself — two concurrent creates cannot both pass.
++      if (!result) {
++        return c.json({ error: 'priority_queue_full', limit: MAX_QUEUED_PRIORITY_RUNS }, 429)
++      }
+       return c.json({ success: true, existing: false, run: normalizeAdminRun(result as any) })
+     } catch (error) {
+       // Konflikt parciálního unikátního indexu = aktivní run se stejným
+@@ -2897,19 +2896,21 @@ app.post('/api/admin/runs/:id/retry', async (c) => {
+     }
+ 
+     try {
+-      await c.env.DB.prepare(`
++      const insertResult = await c.env.DB.prepare(`
+         INSERT INTO admin_runs (
+           id, type, executor, status, dry_run, requested_by, params_json,
+           source_hash, dictionary_hash, code_version, progress_current, progress_total,
+           parent_run_id, retry_of_run_id, actor_kind, actor_id, scope_hash,
+           singleton_key, priority,
+           created_at, updated_at
+-        ) VALUES (
++        )
++        SELECT
+           ?1, ?2, ?3, 'queued', ?4, ?5, ?6, ?7, ?8, ?9, 0, ?10,
+           ?11, ?12, ?13, ?14, ?15,
+           ?16, ?17,
+           unixepoch(), unixepoch()
+-        )
++        WHERE ?17 = 0
++           OR (SELECT COUNT(*) FROM admin_runs WHERE priority > 0 AND status = 'queued') < ?18
+       `).bind(
+         retryId,
+         source.type,
+@@ -2927,8 +2928,12 @@ app.post('/api/admin/runs/:id/retry', async (c) => {
+         identity.actorId,
+         source.scope_hash || null,
+         source.singleton_key || null,
+-        Number(source.priority ?? 0)
++        Number(source.priority ?? 0),
++        MAX_QUEUED_PRIORITY_RUNS
+       ).run()
++      if (!insertResult.meta?.changes) {
++        return c.json({ error: 'priority_queue_full', limit: MAX_QUEUED_PRIORITY_RUNS }, 429)
++      }
+     } catch (error) {
+       // Retry singleton runu narazí na aktivní run se stejným klíčem —
+       // zámek drží jiný holder, odmítneme s konfliktním runId.

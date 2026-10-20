@@ -1,0 +1,7 @@
+{
+  "tr22870_html": "22870",
+  "extracted_glossary_json": "extracted-glossary\\.json",
+  "extract_run_log": "extract-run\\.log",
+  "extract_delta_json": "extract-delta\\.json",
+  "corpus_any": "data/specs"
+}

@@ -1,0 +1,69 @@
+{
+  "seed": 20261021,
+  "note": "doplňkový pokus: velikost CLAUDE.md",
+  "runs": [
+    {
+      "task": "01-priority-queue",
+      "config": "claude-md-lean",
+      "repetition": 3,
+      "seed_position": 54,
+      "run_id": "c000-01-claude-md-lean-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "claude-md-full",
+      "repetition": 3,
+      "seed_position": 55,
+      "run_id": "c001-02-claude-md-full-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "claude-md-lean",
+      "repetition": 2,
+      "seed_position": 56,
+      "run_id": "c002-01-claude-md-lean-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "claude-md-full",
+      "repetition": 2,
+      "seed_position": 57,
+      "run_id": "c003-03-claude-md-full-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "claude-md-full",
+      "repetition": 1,
+      "seed_position": 58,
+      "run_id": "c004-02-claude-md-full-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "claude-md-lean",
+      "repetition": 1,
+      "seed_position": 59,
+      "run_id": "c005-01-claude-md-lean-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "claude-md-full",
+      "repetition": 2,
+      "seed_position": 60,
+      "run_id": "c006-02-claude-md-full-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "claude-md-full",
+      "repetition": 1,
+      "seed_position": 61,
+      "run_id": "c007-03-claude-md-full-1"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "claude-md-full",
+      "repetition": 3,
+      "seed_position": 62,
+      "run_id": "c008-03-claude-md-full-3"
+    }
+  ]
+}

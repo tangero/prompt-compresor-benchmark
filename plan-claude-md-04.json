@@ -1,0 +1,27 @@
+{
+  "seed": null,
+  "note": "pokus CLAUDE.md na \u00faloze 04",
+  "runs": [
+    {
+      "task": "04-glossary-extract",
+      "config": "claude-md-full",
+      "repetition": 1,
+      "seed_position": 81,
+      "run_id": "c009-04-claude-md-full-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "claude-md-full",
+      "repetition": 2,
+      "seed_position": 82,
+      "run_id": "c010-04-claude-md-full-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "claude-md-full",
+      "repetition": 3,
+      "seed_position": 83,
+      "run_id": "c011-04-claude-md-full-3"
+    }
+  ]
+}

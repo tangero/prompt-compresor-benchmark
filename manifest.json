@@ -1,0 +1,46 @@
+{
+  "benchmark": "cc-token-bench",
+  "stage": "2-harness",
+  "source_repo": "3gpp-explorer (soukromý klon, cesta v SOURCE_REPO)",
+  "tasks": {
+    "01-priority-queue": {
+      "snapshot": "de97afaf915f3565a0359a7a7b575bf9f2b94103",
+      "note": "rodič opravy 0b683483abd2a4d8139f435a18eafd714b14a9ff; reference = oprava bez povýšení čekajícího běhu"
+    },
+    "02-releases": {
+      "snapshot": "750d8fbb6e6b2a381e269aedcea08cdbddd29232"
+    },
+    "03-version-decoder": {
+      "snapshot": "750d8fbb6e6b2a381e269aedcea08cdbddd29232"
+    }
+  },
+  "decisions": {
+    "rel20_year": 2027,
+    "rel21_year": 2029,
+    "auth_mode": "oauth-subscription (claude setup-token, vkládá gateway)",
+    "budget_usd": 200,
+    "task1_keep_as_is": true
+  },
+  "toolchain": {
+    "node": "22 (node:22-trixie-slim)",
+    "pnpm": "8.15.0 (packageManager, lockfile v6)",
+    "claude_code": "2.1.303",
+    "codex": "0.163.0, gpt-6.1-sol, reasoning medium, read-only",
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "max_turns": 80,
+    "timeout_min": 45,
+    "per_run_budget_usd": 15
+  },
+  "seed": {
+    "pilot": 20261019,
+    "main": 20261020
+  },
+  "tools": {
+    "caveman": "v4.0.1 d262ab3882952a59312ff3537cd86d894523c5ab",
+    "ponytail": "v5.3.2 16352ac229eb08a9598dcae48fe9f2b342567d86",
+    "rtk": "v1.0.1 4ef8730cf3a0dea11c8d64a9b90bc0616fe52100",
+    "context-mode": "v1.0.169 589d8214d56740a28b5f7bf63167743d586b0b40",
+    "headroom": "0.41.0 76133cff59b71284399bf760c5578dc373c97231"
+  }
+}

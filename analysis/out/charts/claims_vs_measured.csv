@@ -1,0 +1,16 @@
+config,series,saving_pct
+caveman,slib autorů,68
+ponytail,slib autorů,26
+rtk,slib autorů,90
+context-mode,slib autorů,98
+headroom,slib autorů,21
+caveman,nezávislé měření,10
+ponytail,nezávislé měření,10.3
+rtk,nezávislé měření,
+context-mode,nezávislé měření,
+headroom,nezávislé měření,
+caveman,náš test (studená cena),-4.66872553660609
+ponytail,náš test (studená cena),19.853529589055263
+rtk,náš test (studená cena),3.520629457984272
+context-mode,náš test (studená cena),1.477991158394719
+headroom,náš test (studená cena),2.253534795472472

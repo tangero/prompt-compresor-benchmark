@@ -1,0 +1,397 @@
+{
+  "seed": 20261020,
+  "tasks": [
+    "01-priority-queue",
+    "02-releases",
+    "03-version-decoder"
+  ],
+  "configs": [
+    "baseline",
+    "caveman",
+    "ponytail",
+    "rtk",
+    "context-mode",
+    "headroom"
+  ],
+  "reps": 3,
+  "runs": [
+    {
+      "task": "03-version-decoder",
+      "config": "baseline",
+      "repetition": 2,
+      "seed_position": 0,
+      "run_id": "r000-03-baseline-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "baseline",
+      "repetition": 2,
+      "seed_position": 1,
+      "run_id": "r001-02-baseline-2"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "headroom",
+      "repetition": 2,
+      "seed_position": 2,
+      "run_id": "r002-01-headroom-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "rtk",
+      "repetition": 2,
+      "seed_position": 3,
+      "run_id": "r003-02-rtk-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "headroom",
+      "repetition": 2,
+      "seed_position": 4,
+      "run_id": "r004-03-headroom-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "baseline",
+      "repetition": 1,
+      "seed_position": 5,
+      "run_id": "r005-03-baseline-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "headroom",
+      "repetition": 3,
+      "seed_position": 6,
+      "run_id": "r006-01-headroom-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "context-mode",
+      "repetition": 1,
+      "seed_position": 7,
+      "run_id": "r007-01-context-mode-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "ponytail",
+      "repetition": 2,
+      "seed_position": 8,
+      "run_id": "r008-01-ponytail-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "headroom",
+      "repetition": 3,
+      "seed_position": 9,
+      "run_id": "r009-02-headroom-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "caveman",
+      "repetition": 1,
+      "seed_position": 10,
+      "run_id": "r010-02-caveman-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "baseline",
+      "repetition": 1,
+      "seed_position": 11,
+      "run_id": "r011-01-baseline-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "caveman",
+      "repetition": 2,
+      "seed_position": 12,
+      "run_id": "r012-02-caveman-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "ponytail",
+      "repetition": 3,
+      "seed_position": 13,
+      "run_id": "r013-03-ponytail-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "rtk",
+      "repetition": 3,
+      "seed_position": 14,
+      "run_id": "r014-01-rtk-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "baseline",
+      "repetition": 1,
+      "seed_position": 15,
+      "run_id": "r015-02-baseline-1"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "caveman",
+      "repetition": 2,
+      "seed_position": 16,
+      "run_id": "r016-03-caveman-2"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "rtk",
+      "repetition": 2,
+      "seed_position": 17,
+      "run_id": "r017-01-rtk-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "rtk",
+      "repetition": 1,
+      "seed_position": 18,
+      "run_id": "r018-03-rtk-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "ponytail",
+      "repetition": 2,
+      "seed_position": 19,
+      "run_id": "r019-02-ponytail-2"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "ponytail",
+      "repetition": 1,
+      "seed_position": 20,
+      "run_id": "r020-01-ponytail-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "ponytail",
+      "repetition": 1,
+      "seed_position": 21,
+      "run_id": "r021-02-ponytail-1"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "caveman",
+      "repetition": 1,
+      "seed_position": 22,
+      "run_id": "r022-03-caveman-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "headroom",
+      "repetition": 1,
+      "seed_position": 23,
+      "run_id": "r023-02-headroom-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "ponytail",
+      "repetition": 3,
+      "seed_position": 24,
+      "run_id": "r024-01-ponytail-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "ponytail",
+      "repetition": 3,
+      "seed_position": 25,
+      "run_id": "r025-02-ponytail-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "caveman",
+      "repetition": 3,
+      "seed_position": 26,
+      "run_id": "r026-02-caveman-3"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "rtk",
+      "repetition": 2,
+      "seed_position": 27,
+      "run_id": "r027-03-rtk-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "headroom",
+      "repetition": 2,
+      "seed_position": 28,
+      "run_id": "r028-02-headroom-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "headroom",
+      "repetition": 1,
+      "seed_position": 29,
+      "run_id": "r029-03-headroom-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "baseline",
+      "repetition": 2,
+      "seed_position": 30,
+      "run_id": "r030-01-baseline-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "ponytail",
+      "repetition": 1,
+      "seed_position": 31,
+      "run_id": "r031-03-ponytail-1"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "baseline",
+      "repetition": 3,
+      "seed_position": 32,
+      "run_id": "r032-03-baseline-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "context-mode",
+      "repetition": 3,
+      "seed_position": 33,
+      "run_id": "r033-01-context-mode-3"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "ponytail",
+      "repetition": 2,
+      "seed_position": 34,
+      "run_id": "r034-03-ponytail-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "rtk",
+      "repetition": 1,
+      "seed_position": 35,
+      "run_id": "r035-02-rtk-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "headroom",
+      "repetition": 1,
+      "seed_position": 36,
+      "run_id": "r036-01-headroom-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "caveman",
+      "repetition": 2,
+      "seed_position": 37,
+      "run_id": "r037-01-caveman-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "context-mode",
+      "repetition": 1,
+      "seed_position": 38,
+      "run_id": "r038-03-context-mode-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "context-mode",
+      "repetition": 3,
+      "seed_position": 39,
+      "run_id": "r039-02-context-mode-3"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "headroom",
+      "repetition": 3,
+      "seed_position": 40,
+      "run_id": "r040-03-headroom-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "baseline",
+      "repetition": 3,
+      "seed_position": 41,
+      "run_id": "r041-01-baseline-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "rtk",
+      "repetition": 1,
+      "seed_position": 42,
+      "run_id": "r042-01-rtk-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "caveman",
+      "repetition": 3,
+      "seed_position": 43,
+      "run_id": "r043-01-caveman-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "context-mode",
+      "repetition": 2,
+      "seed_position": 44,
+      "run_id": "r044-02-context-mode-2"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "context-mode",
+      "repetition": 3,
+      "seed_position": 45,
+      "run_id": "r045-03-context-mode-3"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "caveman",
+      "repetition": 1,
+      "seed_position": 46,
+      "run_id": "r046-01-caveman-1"
+    },
+    {
+      "task": "02-releases",
+      "config": "context-mode",
+      "repetition": 1,
+      "seed_position": 47,
+      "run_id": "r047-02-context-mode-1"
+    },
+    {
+      "task": "01-priority-queue",
+      "config": "context-mode",
+      "repetition": 2,
+      "seed_position": 48,
+      "run_id": "r048-01-context-mode-2"
+    },
+    {
+      "task": "02-releases",
+      "config": "baseline",
+      "repetition": 3,
+      "seed_position": 49,
+      "run_id": "r049-02-baseline-3"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "caveman",
+      "repetition": 3,
+      "seed_position": 50,
+      "run_id": "r050-03-caveman-3"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "rtk",
+      "repetition": 3,
+      "seed_position": 51,
+      "run_id": "r051-03-rtk-3"
+    },
+    {
+      "task": "02-releases",
+      "config": "rtk",
+      "repetition": 3,
+      "seed_position": 52,
+      "run_id": "r052-02-rtk-3"
+    },
+    {
+      "task": "03-version-decoder",
+      "config": "context-mode",
+      "repetition": 2,
+      "seed_position": 53,
+      "run_id": "r053-03-context-mode-2"
+    }
+  ]
+}

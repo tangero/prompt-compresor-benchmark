@@ -1,0 +1,10 @@
+{
+  "scale": "1-5 (1 = zásadně špatně, 3 = přijatelné s výhradami, 5 = bez výhrad)",
+  "criteria": {
+    "correctness": "Správnost řešení zadání: řeší popsaný problém, odpovídá požadovaným signaturám a chování.",
+    "concurrency_security": "Bezpečnost a souběh. U úlohy 01 výslovně: funguje řešení na skutečné Cloudflare D1, kde požadavky obsluhují různé instance Workeru bez sdílené paměti, nebo jen v jednom procesu (zámek/mutex v JavaScriptu = nejvýš 2)? U úloh bez souběhu hodnoť bezpečnost vstupů a odolnost.",
+    "error_handling": "Ošetření chyb a okrajových případů.",
+    "readability": "Čitelnost a udržovatelnost, soulad se stylem okolního kódu.",
+    "scope": "Držení se zadání: nic navíc, nic chybějícího."
+  }
+}

@@ -1,0 +1,143 @@
+{
+  "seed": 20261022,
+  "tasks": [
+    "04-glossary-extract"
+  ],
+  "configs": [
+    "baseline",
+    "caveman",
+    "ponytail",
+    "rtk",
+    "context-mode",
+    "headroom"
+  ],
+  "reps": 3,
+  "runs": [
+    {
+      "task": "04-glossary-extract",
+      "config": "caveman",
+      "repetition": 2,
+      "seed_position": 63,
+      "run_id": "h000-04-caveman-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "ponytail",
+      "repetition": 1,
+      "seed_position": 64,
+      "run_id": "h001-04-ponytail-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "rtk",
+      "repetition": 2,
+      "seed_position": 65,
+      "run_id": "h002-04-rtk-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "ponytail",
+      "repetition": 2,
+      "seed_position": 66,
+      "run_id": "h003-04-ponytail-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "headroom",
+      "repetition": 1,
+      "seed_position": 67,
+      "run_id": "h004-04-headroom-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "baseline",
+      "repetition": 2,
+      "seed_position": 68,
+      "run_id": "h005-04-baseline-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "headroom",
+      "repetition": 2,
+      "seed_position": 69,
+      "run_id": "h006-04-headroom-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "baseline",
+      "repetition": 3,
+      "seed_position": 70,
+      "run_id": "h007-04-baseline-3"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "ponytail",
+      "repetition": 3,
+      "seed_position": 71,
+      "run_id": "h008-04-ponytail-3"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "context-mode",
+      "repetition": 3,
+      "seed_position": 72,
+      "run_id": "h009-04-context-mode-3"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "headroom",
+      "repetition": 3,
+      "seed_position": 73,
+      "run_id": "h010-04-headroom-3"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "context-mode",
+      "repetition": 1,
+      "seed_position": 74,
+      "run_id": "h011-04-context-mode-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "caveman",
+      "repetition": 1,
+      "seed_position": 75,
+      "run_id": "h012-04-caveman-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "context-mode",
+      "repetition": 2,
+      "seed_position": 76,
+      "run_id": "h013-04-context-mode-2"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "baseline",
+      "repetition": 1,
+      "seed_position": 77,
+      "run_id": "h014-04-baseline-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "caveman",
+      "repetition": 3,
+      "seed_position": 78,
+      "run_id": "h015-04-caveman-3"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "rtk",
+      "repetition": 1,
+      "seed_position": 79,
+      "run_id": "h016-04-rtk-1"
+    },
+    {
+      "task": "04-glossary-extract",
+      "config": "rtk",
+      "repetition": 3,
+      "seed_position": 80,
+      "run_id": "h017-04-rtk-3"
+    }
+  ]
+}

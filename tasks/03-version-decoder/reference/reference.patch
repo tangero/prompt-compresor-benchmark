@@ -1,0 +1,164 @@
+diff --git a/apps/web/src/app/tools/version-decoder/page.tsx b/apps/web/src/app/tools/version-decoder/page.tsx
+new file mode 100644
+index 0000000..1a81f7d
+--- /dev/null
++++ b/apps/web/src/app/tools/version-decoder/page.tsx
+@@ -0,0 +1,40 @@
++import type { Metadata } from 'next'
++import VersionDecoder from '@/components/VersionDecoder'
++
++export const metadata: Metadata = {
++  title: '3GPP Version Decoder | 3GPP Explorer',
++  description: 'Decode a 3GPP file name such as 38331-j40.zip into specification number, release and version.',
++  alternates: { canonical: '/tools/version-decoder/' },
++}
++
++export default function VersionDecoderPage() {
++  return (
++    <main className="mx-auto max-w-3xl space-y-8 px-4 py-10">
++      <h1 className="text-3xl font-semibold">3GPP version decoder</h1>
++      <VersionDecoder initialInput="38331-j40.zip" />
++
++      <section>
++        <h2 className="text-xl font-semibold">How 3GPP versions work</h2>
++        <p>
++          Every 3GPP specification version has three numbers, x.y.z. The major number x identifies the release,
++          y counts technical changes and z counts editorial changes within that release.
++        </p>
++      </section>
++      <section>
++        <h2 className="text-xl font-semibold">Reading file names</h2>
++        <p>
++          Files on the 3GPP server are named after the specification number and a three-character version code,
++          for example 38331-j40.zip. Each character is a digit from 0 to 35 written as 0-9 and a-z, so j40 is
++          version 19.4.0 and ib0 is 18.11.0.
++        </p>
++      </section>
++      <section>
++        <h2 className="text-xl font-semibold">From version to release</h2>
++        <p>
++          Major version 3 belongs to Release 99, 4 to Release 4 and so on up to 21 for Release 21. Versions 0, 1
++          and 2 are drafts before approval and do not belong to any release yet.
++        </p>
++      </section>
++    </main>
++  )
++}
+diff --git a/apps/web/src/components/VersionDecoder.tsx b/apps/web/src/components/VersionDecoder.tsx
+new file mode 100644
+index 0000000..2c35c9e
+--- /dev/null
++++ b/apps/web/src/components/VersionDecoder.tsx
+@@ -0,0 +1,55 @@
++'use client'
++
++import { useState } from 'react'
++import Link from 'next/link'
++import { decodeSpecFile, type DecodedSpecFile } from '@/lib/versionDecoder'
++
++function decode(input: string): { result?: DecodedSpecFile; error?: string } {
++  if (!input.trim()) return {}
++  try {
++    return { result: decodeSpecFile(input) }
++  } catch (e) {
++    return { error: e instanceof Error ? e.message : 'Invalid input' }
++  }
++}
++
++export default function VersionDecoder({ initialInput = '' }: { initialInput?: string }) {
++  const [input, setInput] = useState(initialInput)
++  const { result, error } = decode(input)
++
++  return (
++    <div className="space-y-4">
++      <label className="block text-sm font-medium text-gray-700" htmlFor="version-decoder-input">
++        File name or version designation
++      </label>
++      <input
++        id="version-decoder-input"
++        type="text"
++        value={input}
++        onChange={(e) => setInput(e.target.value)}
++        placeholder="38331-j40.zip or TS 38.331 V19.4.0"
++        className="w-full rounded border border-gray-300 px-3 py-2 font-mono"
++      />
++      {error && <p className="text-sm text-red-700" role="alert">{error}</p>}
++      {result && (
++        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
++          <dt className="text-gray-500">Specification</dt>
++          <dd>{result.specNumber}</dd>
++          <dt className="text-gray-500">Release</dt>
++          <dd>{result.release}</dd>
++          <dt className="text-gray-500">Version</dt>
++          <dd>
++            {result.versionString} (major {result.version.major}, technical {result.version.technical}, editorial{' '}
++            {result.version.editorial})
++          </dd>
++          <dt className="text-gray-500">Page</dt>
++          <dd>
++            <Link href={result.url} className="text-blue-700 underline">
++              {result.specNumber} in {result.release}
++            </Link>
++          </dd>
++        </dl>
++      )}
++    </div>
++  )
++}
+diff --git a/apps/web/src/lib/versionDecoder.ts b/apps/web/src/lib/versionDecoder.ts
+new file mode 100644
+index 0000000..c18588e
+--- /dev/null
++++ b/apps/web/src/lib/versionDecoder.ts
+@@ -0,0 +1,51 @@
++import { formatSpecNumber } from './specUrl'
++
++export interface DecodedSpecFile {
++  specNumber: string
++  release: string
++  version: { major: number; technical: number; editorial: number }
++  versionString: string
++  url: string
++}
++
++const DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz'
++// 38331-j40.zip, 36521-1-i40, ...
++const FILE_NAME = /^(\d{4,5}(?:-\d+)*)-([0-9a-z]{3})(?:\.zip)?$/
++// TS 38.331 V19.4.0, TR 38.901 V18.0.0
++const DESIGNATION = /^t[sr]\s+(\d{2}\.\d{3}(?:-\d+)*)\s+v(\d+)\.(\d+)\.(\d+)$/
++
++/** Release for a major version: 3 = R99, 4 = Rel-4 … 21 = Rel-21. */
++function releaseForMajor(major: number): string {
++  if (major < 3) throw new Error(`Version ${major}.x is a draft before approval; it has no release`)
++  if (major > 21) throw new Error(`Unknown release for major version ${major}`)
++  return major === 3 ? 'R99' : `Rel-${major}`
++}
++
++/** Decodes a 3GPP file name (`38331-j40.zip`) or designation (`TS 38.331 V19.4.0`). */
++export function decodeSpecFile(input: string): DecodedSpecFile {
++  const value = input.trim().toLowerCase()
++  let specNumber: string
++  let parts: number[]
++
++  const file = value.match(FILE_NAME)
++  const designation = file ? null : value.match(DESIGNATION)
++  if (file) {
++    specNumber = formatSpecNumber(file[1])
++    parts = file[2].split('').map((ch) => DIGITS.indexOf(ch))
++  } else if (designation) {
++    specNumber = designation[1]
++    parts = designation.slice(2, 5).map(Number)
++  } else {
++    throw new Error('Expected a file name like 38331-j40.zip or a designation like TS 38.331 V19.4.0')
++  }
++
++  const [major, technical, editorial] = parts
++  const release = releaseForMajor(major)
++  return {
++    specNumber,
++    release,
++    version: { major, technical, editorial },
++    versionString: parts.join('.'),
++    url: `/specification/${release}/${specNumber}/`,
++  }
++}

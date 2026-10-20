@@ -1,0 +1,414 @@
+diff --git a/apps/api/src/admin-operations.ts b/apps/api/src/admin-operations.ts
+index b837c57..b2eef85 100644
+--- a/apps/api/src/admin-operations.ts
++++ b/apps/api/src/admin-operations.ts
+@@ -3,6 +3,7 @@ import {
+   ADMIN_SYNC_RUN_TYPE_ALIASES,
+   adminRunAliases,
+   normalizeAdminRunType,
++  RELEASE_NAMES,
+   type OperationsActiveWorkItem,
+   type OperationsAiDetail,
+   type OperationsBacklog,
+@@ -31,13 +32,13 @@ const AI_THRESHOLD = 8 * DAY;
+ const OVERVIEW_ACTIVE_LIMIT = 25;
+ const OVERVIEW_BLOCKER_LIMIT = 20;
+ const RECENT_UPLOAD_LIMIT = 10;
+-const LATEST_RELEASES = [
+-  'Rel-8', 'Rel-9', 'Rel-10', 'Rel-11', 'Rel-12', 'Rel-13', 'Rel-14',
+-  'Rel-15', 'Rel-16', 'Rel-17', 'Rel-18', 'Rel-19', 'Rel-20', 'Rel-21',
+-] as const;
++const releaseNumber = (name: string): number => Number(name.match(/^Rel-(\d+)$/)?.[1] ?? 0);
++const LATEST_RELEASES = RELEASE_NAMES.filter((r) => releaseNumber(r) >= 8);
++// FTP archiv: R99 a historické hodnoty katalogu Rel-2/Rel-3, pak Rel-4 až Rel-7.
+ const ARCHIVE_RELEASES = [
+-  'R99', 'Rel-2', 'Rel-3', 'Rel-4', 'Rel-5', 'Rel-6', 'Rel-7',
+-] as const;
++  'R99', 'Rel-2', 'Rel-3',
++  ...RELEASE_NAMES.filter((r) => releaseNumber(r) >= 4 && releaseNumber(r) <= 7),
++];
+ 
+ function indexedReleaseLatest(releases: readonly string[]): string {
+   const probes = releases.map((release) => `
+diff --git a/apps/api/src/index.ts b/apps/api/src/index.ts
+index 6de5e75..a8c8588 100644
+--- a/apps/api/src/index.ts
++++ b/apps/api/src/index.ts
+@@ -1,5 +1,6 @@
+ import { Hono, type Context } from 'hono'
+ import { dottedSpecNumber } from './spec-number'
++import { RELEASES, RELEASE_NAMES } from '@3gpp/types'
+ import { cors } from 'hono/cors'
+ import { drizzle } from 'drizzle-orm/d1'
+ import { eq, desc, asc, sql, isNotNull, isNull, and } from 'drizzle-orm'
+@@ -250,6 +251,9 @@ type Variables = AdminAuthVariables & {
+ /**
+  * Hono app s Cloudflare bindings
+  */
++/** Pořadí release hodnot z katalogu: GSM fáze, R99, historické Rel-2, pak RELEASES. */
++const CATALOG_RELEASE_ORDER: string[] = ['Ph1', 'Ph2', 'R96', 'R97', 'R98', 'R99', 'Rel-2', ...RELEASE_NAMES.slice(1)]
++
+ const app = new Hono<{ Bindings: Env; Variables: Variables }>()
+ 
+ /**
+@@ -9105,7 +9109,7 @@ async function discoverCrossReleaseSpecs(db: D1Database, category: string) {
+   }
+ 
+   // Sort releases chronologically
+-  const releaseOrder = ['Ph1', 'Ph2', 'R96', 'R97', 'R98', 'R99', 'Rel-2', 'Rel-4', 'Rel-5', 'Rel-6', 'Rel-7', 'Rel-8', 'Rel-9', 'Rel-10', 'Rel-11', 'Rel-12', 'Rel-13', 'Rel-14', 'Rel-15', 'Rel-16', 'Rel-17', 'Rel-18', 'Rel-19', 'Rel-20', 'Rel-21']
++  const releaseOrder = CATALOG_RELEASE_ORDER
+   const sortedReleases = Object.keys(specsByRelease)
+     .filter(r => specsByRelease[r].tier1.length > 0 || specsByRelease[r].tier2.length > 0)
+     .sort((a, b) => releaseOrder.indexOf(a) - releaseOrder.indexOf(b))
+@@ -9414,7 +9418,7 @@ app.get('/api/admin/article-dossier/:articleId', async (c) => {
+     md += `**Specifications:** ${specNumbers.length}\n\n`
+     md += `---\n\n`
+ 
+-    const releaseOrder = ['Ph1', 'Ph2', 'R96', 'R97', 'R98', 'R99', 'Rel-2', 'Rel-4', 'Rel-5', 'Rel-6', 'Rel-7', 'Rel-8', 'Rel-9', 'Rel-10', 'Rel-11', 'Rel-12', 'Rel-13', 'Rel-14', 'Rel-15', 'Rel-16', 'Rel-17', 'Rel-18', 'Rel-19', 'Rel-20', 'Rel-21']
++    const releaseOrder = CATALOG_RELEASE_ORDER
+     const sortedReleases = Object.keys(specsByRelease).sort((a, b) => releaseOrder.indexOf(a) - releaseOrder.indexOf(b))
+ 
+     for (const rel of sortedReleases) {
+@@ -9864,16 +9868,8 @@ app.get('/api/admin/spec-heading-diff', async (c) => {
+  * ~70 KB each. Stays well under CF Worker 30-second wall time.
+  */
+ const MAX_TIER1_SPECS = 30
+-const RELEASE_ORDER_FOR_TE = [
+-  'Ph1', 'Ph2', 'R96', 'R97', 'R98', 'R99', 'Rel-2', 'Rel-4', 'Rel-5', 'Rel-6', 'Rel-7', 'Rel-8', 'Rel-9',
+-  'Rel-10', 'Rel-11', 'Rel-12', 'Rel-13', 'Rel-14', 'Rel-15', 'Rel-16',
+-  'Rel-17', 'Rel-18', 'Rel-19', 'Rel-20', 'Rel-21',
+-]
+-const RELEASE_YEARS_MAP: Record<string, number> = {
+-  'Rel-8': 2008, 'Rel-9': 2009, 'Rel-10': 2011, 'Rel-11': 2012,
+-  'Rel-12': 2014, 'Rel-13': 2016, 'Rel-14': 2017, 'Rel-15': 2018,
+-  'Rel-16': 2020, 'Rel-17': 2022, 'Rel-18': 2024, 'Rel-19': 2025, 'Rel-20': 2027,
+-}
++const RELEASE_ORDER_FOR_TE = CATALOG_RELEASE_ORDER
++const RELEASE_YEARS_MAP: Record<string, number> = Object.fromEntries(RELEASES.map((r) => [r.name, r.year]))
+ 
+ interface SpecRefRow {
+   id: string
+diff --git a/apps/web/src/app/admin/pipeline/page.tsx b/apps/web/src/app/admin/pipeline/page.tsx
+index c2e3423..86fa3d3 100644
+--- a/apps/web/src/app/admin/pipeline/page.tsx
++++ b/apps/web/src/app/admin/pipeline/page.tsx
+@@ -8,6 +8,7 @@ import {
+   getAdminApiErrorMessage,
+   type AdminAccessFailure,
+ } from '@/lib/admin-api'
++import { RELEASE_NAMES } from '@3gpp/types'
+ 
+ // Pipeline step definitions
+ const PIPELINE_STEPS = [
+@@ -174,7 +175,7 @@ function IssuesSection() {
+               className="border border-gray-300 rounded px-3 py-1 text-sm"
+             >
+               <option value="">Všechny release</option>
+-              {['Rel-20', 'Rel-19', 'Rel-18', 'Rel-17', 'Rel-16', 'Rel-15'].map(r => (
++              {RELEASE_NAMES.slice(RELEASE_NAMES.indexOf('Rel-15')).reverse().map(r => (
+                 <option key={r} value={r}>{r}</option>
+               ))}
+             </select>
+diff --git a/apps/web/src/app/admin/runs/page.tsx b/apps/web/src/app/admin/runs/page.tsx
+index 13afbf6..335ff88 100644
+--- a/apps/web/src/app/admin/runs/page.tsx
++++ b/apps/web/src/app/admin/runs/page.tsx
+@@ -11,6 +11,7 @@ import {
+ import { OperationsCockpit } from './components/OperationsCockpit'
+ import { SpecDiagnosticsPanel, SpecLookup } from './components/SpecLookup'
+ import { useAdaptiveAdminPoll } from './useAdaptiveAdminPoll'
++import { RELEASE_NAMES } from '@3gpp/types'
+ 
+ interface AdminRun {
+   id: string
+@@ -435,10 +436,7 @@ function AdminAccessFailurePanel({
+ // Shared catalog vocabulary — used by PublishedOnPanel and EnqueueForm
+ // =============================================================
+ 
+-const RELEASES = [
+-  'Rel-20', 'Rel-19', 'Rel-18', 'Rel-17', 'Rel-16', 'Rel-15', 'Rel-14',
+-  'Rel-13', 'Rel-12', 'Rel-11', 'Rel-10', 'Rel-9', 'Rel-8',
+-] as const
++const RELEASES = RELEASE_NAMES.slice(RELEASE_NAMES.indexOf('Rel-8')).reverse()
+ 
+ const SERIES = [
+   '21', '22', '23', '24', '25', '26', '27', '28', '29',
+diff --git a/apps/web/src/app/specifications/SpecificationsClient.tsx b/apps/web/src/app/specifications/SpecificationsClient.tsx
+index bc9ea1e..081f945 100644
+--- a/apps/web/src/app/specifications/SpecificationsClient.tsx
++++ b/apps/web/src/app/specifications/SpecificationsClient.tsx
+@@ -11,6 +11,7 @@ import {
+   EditorialPage,
+   editorial,
+ } from '@/components/EditorialShell'
++import { RELEASE_NAMES } from '@3gpp/types'
+ 
+ interface Specification {
+   id: string
+@@ -48,11 +49,7 @@ type ViewMode = 'grid' | 'list'
+ type SortOption = 'date' | 'relevance' | 'specNumber' | 'release' | 'title'
+ 
+ // Available releases
+-const RELEASES = [
+-  'Rel-20', 'Rel-19', 'Rel-18', 'Rel-17', 'Rel-16', 'Rel-15', 'Rel-14', 'Rel-13',
+-  'Rel-12', 'Rel-11', 'Rel-10', 'Rel-9', 'Rel-8', 'Rel-7', 'Rel-6', 'Rel-5',
+-  'Rel-4', 'Rel-2', 'R99'
+-]
++const RELEASES = [...RELEASE_NAMES.slice(1).reverse(), 'Rel-2', 'R99']
+ 
+ // Series with descriptions
+ const SERIES = [
+diff --git a/apps/web/src/lib/releaseMeta.ts b/apps/web/src/lib/releaseMeta.ts
+index c40335f..e7beb90 100644
+--- a/apps/web/src/lib/releaseMeta.ts
++++ b/apps/web/src/lib/releaseMeta.ts
+@@ -1,37 +1,42 @@
++import { RELEASES, RELEASE_NAMES } from '@3gpp/types';
++
+ export interface ReleaseInfo {
+   name: string;
+   year: string;
+   description: string;
+ }
+ 
+-export const RELEASE_INFO: Record<string, ReleaseInfo> = {
+-  'rel-20': { name: 'Release 20', year: '2026', description: '5G-Advanced Phase 3' },
+-  'rel-19': { name: 'Release 19', year: '2025', description: '5G-Advanced Phase 2 - AI/ML for NR, XR enhancements' },
+-  'rel-18': { name: 'Release 18', year: '2024', description: '5G-Advanced Phase 1 - Network energy savings, XR, RedCap' },
+-  'rel-17': { name: 'Release 17', year: '2022', description: '5G enhancements - NTN, NR-Light, Positioning' },
+-  'rel-16': { name: 'Release 16', year: '2020', description: '5G Phase 2 - URLLC, V2X, NR-U, IIoT' },
+-  'rel-15': { name: 'Release 15', year: '2018', description: '5G Phase 1 - First 5G NR specifications' },
+-  'rel-14': { name: 'Release 14', year: '2017', description: 'LTE-Advanced Pro - V2X, eMTC, NB-IoT' },
+-  'rel-13': { name: 'Release 13', year: '2016', description: 'LTE-Advanced Pro - LAA, LWA, NB-IoT' },
+-  'rel-12': { name: 'Release 12', year: '2015', description: 'LTE-Advanced - ProSe, D2D, small cells' },
+-  'rel-11': { name: 'Release 11', year: '2013', description: 'LTE-Advanced - CoMP, enhanced MIMO' },
+-  'rel-10': { name: 'Release 10', year: '2011', description: 'LTE-Advanced - Carrier Aggregation' },
+-  'rel-9': { name: 'Release 9', year: '2010', description: 'LTE enhancements - eMBMS, HeNB' },
+-  'rel-8': { name: 'Release 8', year: '2008', description: 'First LTE specifications' },
+-  'rel-7': { name: 'Release 7', year: '2007', description: 'HSPA+, MIMO, IMS enhancements' },
+-  'rel-6': { name: 'Release 6', year: '2005', description: 'HSUPA, MBMS, IMS' },
+-  'rel-5': { name: 'Release 5', year: '2002', description: 'HSDPA, IMS introduction' },
+-  'rel-4': { name: 'Release 4', year: '2001', description: 'All-IP core network' },
++const RELEASE_DESCRIPTIONS: Record<string, Omit<ReleaseInfo, 'year'> & { year?: string }> = {
++  'rel-21': { name: 'Release 21', description: '6G Phase 1' },
++  'rel-20': { name: 'Release 20', description: '5G-Advanced Phase 3' },
++  'rel-19': { name: 'Release 19', description: '5G-Advanced Phase 2 - AI/ML for NR, XR enhancements' },
++  'rel-18': { name: 'Release 18', description: '5G-Advanced Phase 1 - Network energy savings, XR, RedCap' },
++  'rel-17': { name: 'Release 17', description: '5G enhancements - NTN, NR-Light, Positioning' },
++  'rel-16': { name: 'Release 16', description: '5G Phase 2 - URLLC, V2X, NR-U, IIoT' },
++  'rel-15': { name: 'Release 15', description: '5G Phase 1 - First 5G NR specifications' },
++  'rel-14': { name: 'Release 14', description: 'LTE-Advanced Pro - V2X, eMTC, NB-IoT' },
++  'rel-13': { name: 'Release 13', description: 'LTE-Advanced Pro - LAA, LWA, NB-IoT' },
++  'rel-12': { name: 'Release 12', description: 'LTE-Advanced - ProSe, D2D, small cells' },
++  'rel-11': { name: 'Release 11', description: 'LTE-Advanced - CoMP, enhanced MIMO' },
++  'rel-10': { name: 'Release 10', description: 'LTE-Advanced - Carrier Aggregation' },
++  'rel-9': { name: 'Release 9', description: 'LTE enhancements - eMBMS, HeNB' },
++  'rel-8': { name: 'Release 8', description: 'First LTE specifications' },
++  'rel-7': { name: 'Release 7', description: 'HSPA+, MIMO, IMS enhancements' },
++  'rel-6': { name: 'Release 6', description: 'HSUPA, MBMS, IMS' },
++  'rel-5': { name: 'Release 5', description: 'HSDPA, IMS introduction' },
++  'rel-4': { name: 'Release 4', description: 'All-IP core network' },
+   'rel-2': { name: 'Release 2000', year: '2000', description: 'EDGE, MExE' },
+-  r99: { name: 'Release 99', year: '1999', description: 'First UMTS/WCDMA release' },
++  r99: { name: 'Release 99', description: 'First UMTS/WCDMA release' },
+ };
+ 
+-export const RELEASE_STATIC_PARAMS = [
+-  'Rel-20', 'Rel-19', 'Rel-18', 'Rel-17', 'Rel-16', 'Rel-15',
+-  'Rel-14', 'Rel-13', 'Rel-12', 'Rel-11', 'Rel-10',
+-  'Rel-9', 'Rel-8', 'Rel-7', 'Rel-6', 'Rel-5', 'Rel-4',
+-  'Rel-2', 'R99',
+-];
++export const RELEASE_INFO: Record<string, ReleaseInfo> = Object.fromEntries(
++  Object.entries(RELEASE_DESCRIPTIONS).map(([key, info]) => {
++    const year = RELEASES.find((r) => r.name.toLowerCase() === key)?.year;
++    return [key, { ...info, year: year === undefined ? (info.year ?? '') : String(year) }];
++  }),
++);
++
++export const RELEASE_STATIC_PARAMS = [...RELEASE_NAMES.slice(1).reverse(), 'Rel-2', 'R99'];
+ 
+ export const INDEXED_RELEASES = new Set(['rel-20', 'rel-19', 'rel-18', 'rel-17', 'rel-16', 'rel-15']);
+ 
+diff --git a/apps/web/src/lib/releaseYears.ts b/apps/web/src/lib/releaseYears.ts
+index e6a3883..48a14ad 100644
+--- a/apps/web/src/lib/releaseYears.ts
++++ b/apps/web/src/lib/releaseYears.ts
+@@ -1,3 +1,5 @@
++import { RELEASES } from '@3gpp/types'
++
+ /**
+  * 3GPP releases with their era and the year the site associates with them
+  * (release freeze, rounded). Shared by the release tabs and Specification
+@@ -10,24 +12,17 @@ export interface ReleaseInfo {
+   year?: string
+ }
+ 
++const TECH_ERAS: Record<string, string> = {
++  'Rel-21': '6G', 'Rel-20': '5G-Adv', 'Rel-19': '5G-Adv', 'Rel-18': '5G-Adv',
++  'Rel-17': '5G', 'Rel-16': '5G', 'Rel-15': '5G', 'Rel-14': 'LTE-Pro', 'Rel-13': 'LTE-Pro',
++  'Rel-12': 'LTE-Adv', 'Rel-11': 'LTE-Adv', 'Rel-10': 'LTE-Adv', 'Rel-9': 'LTE', 'Rel-8': 'LTE',
++  'Rel-7': 'UMTS', 'Rel-6': 'UMTS', 'Rel-5': 'UMTS', 'Rel-4': 'UMTS', R99: 'UMTS',
++}
++
++// Newest first; Rel-2 (Release 2000) is a legacy catalog value outside RELEASES.
+ export const RELEASE_LIST: ReleaseInfo[] = [
+-  { name: 'Rel-20', techEra: '5G-Adv', year: '2026' },
+-  { name: 'Rel-19', techEra: '5G-Adv', year: '2025' },
+-  { name: 'Rel-18', techEra: '5G-Adv', year: '2024' },
+-  { name: 'Rel-17', techEra: '5G', year: '2022' },
+-  { name: 'Rel-16', techEra: '5G', year: '2020' },
+-  { name: 'Rel-15', techEra: '5G', year: '2019' },
+-  { name: 'Rel-14', techEra: 'LTE-Pro', year: '2017' },
+-  { name: 'Rel-13', techEra: 'LTE-Pro', year: '2016' },
+-  { name: 'Rel-12', techEra: 'LTE-Adv', year: '2015' },
+-  { name: 'Rel-11', techEra: 'LTE-Adv', year: '2013' },
+-  { name: 'Rel-10', techEra: 'LTE-Adv', year: '2011' },
+-  { name: 'Rel-9', techEra: 'LTE', year: '2010' },
+-  { name: 'Rel-8', techEra: 'LTE', year: '2008' },
+-  { name: 'Rel-7', techEra: 'UMTS', year: '2007' },
+-  { name: 'Rel-6', techEra: 'UMTS', year: '2005' },
+-  { name: 'Rel-5', techEra: 'UMTS', year: '2002' },
+-  { name: 'Rel-4', techEra: 'UMTS', year: '2001' },
++  ...[...RELEASES].reverse().filter((r) => r.name !== 'R99')
++    .map((r) => ({ name: r.name, techEra: TECH_ERAS[r.name] ?? '', year: String(r.year) })),
+   { name: 'Rel-2', techEra: 'GPRS', year: '2000' },
+   { name: 'R99', techEra: 'UMTS', year: '1999' },
+ ]
+diff --git a/packages/spec-pipeline/src/glossary/engines/timeline/release-eras.ts b/packages/spec-pipeline/src/glossary/engines/timeline/release-eras.ts
+index f1e30d9..62dd1d7 100644
+--- a/packages/spec-pipeline/src/glossary/engines/timeline/release-eras.ts
++++ b/packages/spec-pipeline/src/glossary/engines/timeline/release-eras.ts
+@@ -11,13 +11,12 @@
+  * releasy (Rel-96/97/98) na ose nejsou → null (volající událost přeskočí).
+  */
+ 
+-export const RELEASE_ORDER = [
+-  'R99', 'Rel-2', 'Rel-4', 'Rel-5', 'Rel-6', 'Rel-7',
+-  'Rel-8', 'Rel-9', 'Rel-10', 'Rel-11', 'Rel-12', 'Rel-13', 'Rel-14',
+-  'Rel-15', 'Rel-16', 'Rel-17', 'Rel-18', 'Rel-19', 'Rel-20',
+-] as const;
++import { RELEASE_NAMES } from '@3gpp/types';
+ 
+-export type Release = (typeof RELEASE_ORDER)[number];
++/** Osa: R99, historické Rel-2 (Release 2000), pak Rel-4… ze sdíleného RELEASES. */
++export const RELEASE_ORDER: readonly string[] = ['R99', 'Rel-2', ...RELEASE_NAMES.slice(1)];
++
++export type Release = string;
+ 
+ export type Generation = '3G' | '4G' | '5G';
+ 
+@@ -33,7 +32,7 @@ export interface Era {
+ export const ERAS: Era[] = [
+   { generation: '3G', label: '3G · GSM/UMTS', from: 'R99', to: 'Rel-7' },
+   { generation: '4G', label: '4G · LTE', from: 'Rel-8', to: 'Rel-14' },
+-  { generation: '5G', label: '5G · NR', from: 'Rel-15', to: 'Rel-20' },
++  { generation: '5G', label: '5G · NR', from: 'Rel-15', to: RELEASE_NAMES[RELEASE_NAMES.length - 1] },
+ ];
+ 
+ const INDEX = new Map<string, number>(RELEASE_ORDER.map((r, i) => [r, i]));
+diff --git a/packages/spec-pipeline/src/glossary/timeline/generate-timelines.ts b/packages/spec-pipeline/src/glossary/timeline/generate-timelines.ts
+index c79e86b..5ef0520 100644
+--- a/packages/spec-pipeline/src/glossary/timeline/generate-timelines.ts
++++ b/packages/spec-pipeline/src/glossary/timeline/generate-timelines.ts
+@@ -25,11 +25,8 @@ import { join } from 'node:path';
+ import chalk from 'chalk';
+ import type { GlossaryPaths } from '../paths';
+ 
+-// --- Typy zrcadlí apps/downloader/src/timeline/release-eras.ts (shodné literálové unie) ---
+-export type Release =
+-  | 'R99' | 'Rel-2' | 'Rel-4' | 'Rel-5' | 'Rel-6' | 'Rel-7'
+-  | 'Rel-8' | 'Rel-9' | 'Rel-10' | 'Rel-11' | 'Rel-12' | 'Rel-13' | 'Rel-14'
+-  | 'Rel-15' | 'Rel-16' | 'Rel-17' | 'Rel-18' | 'Rel-19' | 'Rel-20';
++// --- Release je hodnota ze sdíleného RELEASES (@3gpp/types), viz engines/timeline/release-eras.ts ---
++export type Release = string;
+ 
+ export type Generation = '3G' | '4G' | '5G';
+ 
+diff --git a/packages/types/src/index.ts b/packages/types/src/index.ts
+index 247d465..e1dbcf5 100644
+--- a/packages/types/src/index.ts
++++ b/packages/types/src/index.ts
+@@ -1,3 +1,4 @@
++export * from './releases';
+ export * from './meetings';
+ 
+ // API Response types
+@@ -165,23 +166,6 @@ export interface AiAnalysisResult {
+ }
+ 
+ // Export constants
+-export const RELEASES = [
+-  'Rel-19',
+-  'Rel-18',
+-  'Rel-17',
+-  'Rel-16',
+-  'Rel-15',
+-  'Rel-14',
+-  'Rel-13',
+-  'Rel-12',
+-  'Rel-11',
+-  'Rel-10',
+-  'Rel-9',
+-  'Rel-8'
+-] as const;
+-
+-export type Release = (typeof RELEASES)[number];
+-
+ export const SERIES_NUMBERS = Array.from({ length: 18 }, (_, i) => (21 + i).toString());
+ 
+ export const NETWORK_CATEGORIES: NetworkMainCategory[] = [
+diff --git a/packages/types/src/releases.ts b/packages/types/src/releases.ts
+new file mode 100644
+index 0000000..897e89e
+--- /dev/null
++++ b/packages/types/src/releases.ts
+@@ -0,0 +1,48 @@
++/**
++ * 3GPP releases in chronological order with the year the site associates
++ * with them (release freeze, rounded). Single source for web, API and pipeline.
++ */
++export interface ReleaseYear {
++  name: string;
++  year: number;
++}
++
++export const RELEASES: readonly ReleaseYear[] = [
++  { name: 'R99', year: 1999 },
++  { name: 'Rel-4', year: 2001 },
++  { name: 'Rel-5', year: 2002 },
++  { name: 'Rel-6', year: 2005 },
++  { name: 'Rel-7', year: 2007 },
++  { name: 'Rel-8', year: 2008 },
++  { name: 'Rel-9', year: 2009 },
++  { name: 'Rel-10', year: 2011 },
++  { name: 'Rel-11', year: 2012 },
++  { name: 'Rel-12', year: 2014 },
++  { name: 'Rel-13', year: 2016 },
++  { name: 'Rel-14', year: 2017 },
++  { name: 'Rel-15', year: 2018 },
++  { name: 'Rel-16', year: 2020 },
++  { name: 'Rel-17', year: 2022 },
++  { name: 'Rel-18', year: 2024 },
++  { name: 'Rel-19', year: 2025 },
++  { name: 'Rel-20', year: 2027 },
++  { name: 'Rel-21', year: 2029 },
++];
++
++/** Release names, oldest first. */
++export const RELEASE_NAMES: readonly string[] = RELEASES.map((r) => r.name);
++
++const VERSION_DIGITS = '0123456789abcdefghijklmnopqrstuvwxyz';
++
++/**
++ * Release from a 3-character 3GPP file version code (`38331-j40.zip` → `j40`):
++ * the first character is the major version (`3` R99, `4` Rel-4 … `a` Rel-10 …
++ * `l` Rel-21). Drafts (`0`–`2`), unknown releases and malformed codes → null.
++ */
++export function releaseFromVersionCode(code: string): string | null {
++  const value = code.toLowerCase();
++  if (!/^[0-9a-z]{3}$/.test(value)) return null;
++  const major = VERSION_DIGITS.indexOf(value[0]);
++  const name = major === 3 ? 'R99' : `Rel-${major}`;
++  return RELEASE_NAMES.includes(name) ? name : null;
++}

@@ -1,0 +1,37 @@
+{
+  "_poznamka": "Ověřeno 2026-10-20 proti README přesně testovaných verzí (commit v manifest.json) a proti zdrojům nezávislých měření. claim_pct = hlavní slib autorů v README testované verze, independent_pct = nezávislé měření ceny (null = nenalezeno). Metriky slibů nejsou jednotné (výstupní tokeny, výstup bashe, cena), viz metric; graf je proto jen orientační.",
+  "caveman": {
+    "claim_pct": 68,
+    "metric": "výstupní tokeny odpovědi (README v4.0.1: ukázka 63 → 20 tokenů; režim Read less slibuje 33,2 % vstupních tokenů, v testu ale aktivní jen hlas caveman)",
+    "source": "https://github.com/JuliusBrussee/caveman/blob/d262ab3882952a59312ff3537cd86d894523c5ab/README.md",
+    "independent_pct": 10,
+    "independent_metric": "cena, nejvýš (JetBrains: −8,5 % výstupních tokenů, 82 párů; cena v součtu ale +11,6 %)",
+    "independent_source": "https://blog.jetbrains.com/ai/2026/07/speak-to-ai-agents-like-cavemen-tosave-tokens/"
+  },
+  "ponytail": {
+    "claim_pct": 26,
+    "metric": "cena (README v5.3.2: −53 % kódu, −41 % času, −26 % ceny, −45 % tokenů)",
+    "source": "https://github.com/DietrichGebert/ponytail/blob/16352ac229eb08a9598dcae48fe9f2b342567d86/README.md",
+    "independent_pct": 10.3,
+    "independent_metric": "cena (JetBrains, 80 párových úloh, starší verze se slibem −20 %)",
+    "independent_source": "https://blog.jetbrains.com/ai/2026/07/ponytail-skill-claude-tested/"
+  },
+  "rtk": {
+    "claim_pct": 90,
+    "metric": "výstup bashe, „až 90 %“; README v1.0.1 sám uvádí, že účet klesne méně",
+    "source": "https://github.com/rtk-ai/rtk/blob/4ef8730cf3a0dea11c8d64a9b90bc0616fe52100/README.md",
+    "independent_pct": null
+  },
+  "context-mode": {
+    "claim_pct": 98,
+    "metric": "objem výstupů nástrojů v kontextu (315 KB → 5,4 KB)",
+    "source": "https://github.com/mksglu/context-mode/blob/589d8214d56740a28b5f7bf63167743d586b0b40/README.md",
+    "independent_pct": null
+  },
+  "headroom": {
+    "claim_pct": 21,
+    "metric": "vstupní tokeny, scénář vyhledávání v kódu (README 0.41.0: 21–57 % podle scénáře, JSON a logy až 90 %)",
+    "source": "https://github.com/chopratejas/headroom/blob/76133cff59b71284399bf760c5578dc373c97231/README.md",
+    "independent_pct": null
+  }
+}

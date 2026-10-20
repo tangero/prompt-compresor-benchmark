@@ -1,0 +1,10 @@
+runs/**
+!runs/**/
+!runs/*/attempt-*/metrics.json
+.claude/
+node_modules/
+__pycache__/
+build/
+configs/claude-md-*/CLAUDE.md
+.DS_Store
+*.bak*
